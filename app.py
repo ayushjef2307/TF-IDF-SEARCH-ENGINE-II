@@ -12,6 +12,8 @@ class SearchForm(FlaskForm):
     search = StringField("Enter your search terms:")
     submit = SubmitField("Search")
 
+TF_IDF_map = None
+
 def process_query(query, TF_IDF_map, document_links, document_names, document):
     query = query.lower().split()
     potential_documents = {}
