@@ -23,10 +23,6 @@ Clone the project
 
 Go to the project directory
 
-```bash
-  cd LeetCode-Question-Finder
-```
-
 Install dependencies
 
 ```bash
