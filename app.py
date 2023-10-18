@@ -1,9 +1,13 @@
 import json
 import sys
 import os
+import logging  # Import the logging module
 from flask import Flask, render_template, request, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
+
+# Configure the logging module
+logging.basicConfig(level=logging.DEBUG)  # Set the logging level to DEBUG
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Ayush-Jef'
@@ -12,19 +16,16 @@ class SearchForm(FlaskForm):
     search = StringField("Enter your search terms:")
     submit = SubmitField("Search")
 
-TF_IDF_map = {}
-document_links = []
-document_names = []
-document = []
+TF_IDF_map = {}  # Initialize as an empty dictionary
 
 def process_query(query, TF_IDF_map, document_links, document_names, document):
-    query = query.lower().split()
-    potential_documents = {}
-    results = []
-
-    ans = []
-
     try:
+        query = query.lower().split()
+        potential_documents = {}
+        results = []
+
+        ans = []
+
         for word in query:
             if word in TF_IDF_map:
                 for index in TF_IDF_map[word]:
@@ -42,21 +43,14 @@ def process_query(query, TF_IDF_map, document_links, document_names, document):
                 str(document_links[index]),
                 str(document_names[index])
             ])
+
+        results = list(set(results))
+
+        return ans
+
     except Exception as e:
-        print(e)
-        return []
-
-    results = list(set(results))
-
-    # ans = sorted(ans, key =lambda item : item[0], reverse = True)
-
-    # # Prepare the JSON response
-    # output_data = {
-    #     'results': results
-    # }
-
-    # return jsonify(output_data)
-    return ans
+        logging.exception("Error processing the query")  # Log the exception
+        return jsonify(error="Error processing the query")
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -78,14 +72,26 @@ def home():
 if __name__ == '__main__':
     try:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        print(current_dir)
+        logging.debug("Current Directory: %s", current_dir)  # Log the current directory
+
         output_file = os.path.join(current_dir, 'output.json')
+        logging.debug("Output File Path: %s", output_file)  # Log the output file path
+
+        if not os.path.exists(output_file):
+            raise FileNotFoundError(f"File not found: {output_file}")
+
+        with open(output_file, 'r') as file:
+            TF_IDF_map = json.load(file)
+
         doc_file = os.path.join(current_dir, 'doc.json')
         links_file = os.path.join(current_dir, 'links.json')
         names_file = os.path.join(current_dir, 'names.json')
 
-        with open(output_file, 'r') as file:
-            TF_IDF_map = json.load(file)
+        # Log the paths and check if files exist
+        for file_path in [doc_file, links_file, names_file]:
+            logging.debug("%s File Path: %s", file_path.split('.')[0].capitalize(), file_path)
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
 
         with open(doc_file, 'r') as file:
             document = json.load(file)
@@ -95,8 +101,12 @@ if __name__ == '__main__':
 
         with open(names_file, 'r') as file:
             document_names = json.load(file)
-    except Exception as e:
-        print(e)
-        exit()
 
-    app.run(debug=True)
+        app.run(debug=True)
+
+    except FileNotFoundError as e:
+        logging.exception(f"Error loading data: {e}")  # Log the exception
+        exit()
+    except Exception as e:
+        logging.exception(f"Error loading data: {e}")  # Log the exception
+        exit()
