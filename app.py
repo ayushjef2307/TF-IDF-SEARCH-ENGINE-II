@@ -44,7 +44,7 @@ def process_query(query, TF_IDF_map, document_links, document_names, document):
             ])
     except Exception as e:
         print(e)
-        return jsonify(error="Error processing the query")
+        return []
 
     results = list(set(results))
 
