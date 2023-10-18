@@ -17,6 +17,9 @@ class SearchForm(FlaskForm):
     submit = SubmitField("Search")
 
 TF_IDF_map = {}  # Initialize as an empty dictionary
+document_links = []
+document_names = []
+document = []
 
 def process_query(query, TF_IDF_map, document_links, document_names, document):
     try:
