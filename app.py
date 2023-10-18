@@ -1,13 +1,9 @@
 import json
 import sys
 import os
-import logging  # Import the logging module
 from flask import Flask, render_template, request, jsonify
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-
-# Configure the logging module
-logging.basicConfig(level=logging.DEBUG)  # Set the logging level to DEBUG
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'Ayush-Jef'
@@ -52,8 +48,8 @@ def process_query(query, TF_IDF_map, document_links, document_names, document):
         return ans
 
     except Exception as e:
-        logging.exception("Error processing the query")  # Log the exception
-        return jsonify(error="Error processing the query")
+        print(e)
+        return []
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -75,26 +71,19 @@ def home():
 if __name__ == '__main__':
     try:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        logging.debug("Current Directory: %s", current_dir)  # Log the current directory
-
+        print(current_dir)
         output_file = os.path.join(current_dir, 'output.json')
-        logging.debug("Output File Path: %s", output_file)  # Log the output file path
-
-        if not os.path.exists(output_file):
-            raise FileNotFoundError(f"File not found: {output_file}")
-
-        with open(output_file, 'r') as file:
-            TF_IDF_map = json.load(file)
-
         doc_file = os.path.join(current_dir, 'doc.json')
         links_file = os.path.join(current_dir, 'links.json')
         names_file = os.path.join(current_dir, 'names.json')
 
-        # Log the paths and check if files exist
-        for file_path in [doc_file, links_file, names_file]:
-            logging.debug("%s File Path: %s", file_path.split('.')[0].capitalize(), file_path)
+        # Check if the JSON files exist
+        for file_path in [output_file, doc_file, links_file, names_file]:
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"File not found: {file_path}")
+
+        with open(output_file, 'r') as file:
+            TF_IDF_map = json.load(file)
 
         with open(doc_file, 'r') as file:
             document = json.load(file)
@@ -105,11 +94,11 @@ if __name__ == '__main__':
         with open(names_file, 'r') as file:
             document_names = json.load(file)
 
-        app.run(debug=True)
-
     except FileNotFoundError as e:
-        logging.exception(f"Error loading data: {e}")  # Log the exception
+        print(f"Error loading data: {e}")
         exit()
     except Exception as e:
-        logging.exception(f"Error loading data: {e}")  # Log the exception
+        print(f"Error loading data: {e}")
         exit()
+
+    app.run(debug=True)
