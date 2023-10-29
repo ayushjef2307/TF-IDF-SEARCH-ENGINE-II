@@ -11,7 +11,7 @@
     <form method="POST">
       {{ form.hidden_tag() }}
       {{ form.search.label }}
-      {{ form.search() }}
+      {{ form.search(autocomplete = "off") }}
       {{ form.submit() }}
     </form>
   </div>
