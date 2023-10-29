@@ -2,7 +2,8 @@
 # TF-IDF Search Engine
 
 Welcome to the Question Finder: Search Engine repository! This project provides a web application that allows users to search for coding questions from LeetCode (LC) and Codeforces (CF).
-[Click Here to visit: ](https://question-finder.onrender.com)
+
+[Click Here to visit Question-Finder](https://question-finder.onrender.com)
 ## Prerequisite
 
 Before building the code locally, ensure that you have the following prerequisites installed on your machine:
