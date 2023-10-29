@@ -1,5 +1,4 @@
 import json
-import sys
 import os
 from flask import Flask, render_template, request, jsonify
 from flask_wtf import FlaskForm
@@ -11,11 +10,6 @@ app.config['SECRET_KEY'] = 'Ayush-Jef'
 class SearchForm(FlaskForm):
     search = StringField("Enter your search terms:")
     submit = SubmitField("Search")
-
-TF_IDF_map = {}  # Initialize as an empty dictionary
-document_links = []
-document_names = []
-document = []
 
 def process_query(query, TF_IDF_map, document_links, document_names, document):
     try:
@@ -56,31 +50,13 @@ def home():
     form = SearchForm()
     ans = []
     q_terms = []
-    if form.validate_on_submit():
-        query = form.search.data
-        q_terms = [term.lower() for term in query.strip().split()]
-        ans = process_query(query, TF_IDF_map, document_links, document_names, document)[:20]
 
-    if len(q_terms) != 0:
-        search_triggered = True
-    else:
-        search_triggered = False
-
-    return render_template('index.html', form=form, results=ans, search_triggered=search_triggered)
-
-if __name__ == '__main__':
     try:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        print(current_dir)
         output_file = os.path.join(current_dir, 'output.json')
         doc_file = os.path.join(current_dir, 'doc.json')
         links_file = os.path.join(current_dir, 'links.json')
         names_file = os.path.join(current_dir, 'names.json')
-
-        # Check if the JSON files exist
-        for file_path in [output_file, doc_file, links_file, names_file]:
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"File not found: {file_path}")
 
         with open(output_file, 'r') as file:
             TF_IDF_map = json.load(file)
@@ -94,11 +70,20 @@ if __name__ == '__main__':
         with open(names_file, 'r') as file:
             document_names = json.load(file)
 
-    except FileNotFoundError as e:
-        print(f"Error loading data: {e}")
-        exit()
     except Exception as e:
         print(f"Error loading data: {e}")
-        exit()
 
+    if form.validate_on_submit():
+        query = form.search.data
+        q_terms = [term.lower() for term in query.strip().split()]
+        ans = process_query(query, TF_IDF_map, document_links, document_names, document)[:20]
+
+    if len(q_terms) != 0:
+        search_triggered = True
+    else:
+        search_triggered = False
+
+    return render_template('index.html', form=form, results=ans, search_triggered=search_triggered)
+
+if __name__ == '__main__':
     app.run(debug=True)
